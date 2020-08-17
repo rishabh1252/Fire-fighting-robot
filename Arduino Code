@@ -1,0 +1,113 @@
+#include <SoftwareSerial.h>
+#define m11 11
+#define m12 10
+#define m13 8
+#define m14 9
+#define r 19
+#define o 12
+#define b 17
+SoftwareSerial BT(4, 5); //TX OF BLUETOOTH ON 4
+String readvoice;
+void setup()
+{
+  pinMode(m11, OUTPUT);
+  pinMode(m12, OUTPUT);
+  pinMode(m13, OUTPUT);
+  pinMode(m14, OUTPUT);
+  pinMode(r, OUTPUT);
+  pinMode(o, OUTPUT);
+  pinMode(b, OUTPUT);
+  digitalWrite(m11, HIGH);
+  digitalWrite(m12, HIGH);
+  digitalWrite(m13, HIGH);
+  digitalWrite(m14, HIGH);
+  digitalWrite(o, HIGH);
+  BT.begin(9600);
+  Serial.begin(9600);
+}
+//-----------------------------------------------------------------------//
+void loop()
+{
+  readvoice = ""; //Reset the variable
+  if (BT.available())
+  {
+    while (BT.available())
+    { //Check if there is an available byte to read
+      delay(10); //Delay added to make thing stable
+      char c = BT.read(); //Conduct a serial read
+      readvoice += c; //build the string- "forward", "reverse", "left" and "right"
+    }
+  }
+  if (digitalRead(6) == HIGH)
+  {
+    digitalWrite(o, LOW);
+  }
+  else
+  {
+    digitalWrite(o, HIGH);
+  }
+  if (readvoice.length() > 0)
+  {
+    Serial.println(readvoice);
+    if (readvoice == "*forward#" || readvoice == "FF" || readvoice == "FORWARD")
+    {
+      digitalWrite(m11, HIGH);
+      digitalWrite(m12, LOW);
+      digitalWrite(m13, HIGH);
+      digitalWrite(m14, LOW);
+    }
+    else if (readvoice == "BB" || readvoice == "*backward#" || readvoice == "BACKWARD")
+    {
+      digitalWrite(m11, LOW);
+      digitalWrite(m12, HIGH);
+      digitalWrite(m13, LOW);
+      digitalWrite(m14, HIGH);
+      Serial.println(readvoice);
+    }
+    else if (readvoice == "*right#" || readvoice == "RR" || readvoice == "RIGHT")
+    {
+      digitalWrite(m11, HIGH);
+      digitalWrite(m12, LOW);
+      digitalWrite(m13, LOW);
+      digitalWrite(m14, HIGH);
+    }
+    else if ( readvoice == "*left#" || readvoice == "LL" || readvoice == "LEFT")
+    {
+      digitalWrite(m11, LOW);
+      digitalWrite(m12, HIGH);
+      digitalWrite(m13, HIGH);
+      digitalWrite(m14, LOW);
+    }
+    else if (readvoice == "*stop#" || readvoice == "SS" || readvoice == "STOP")
+    {
+      digitalWrite(m11, HIGH);
+      digitalWrite(m12, HIGH);
+      digitalWrite(m13, HIGH);
+      digitalWrite(m14, HIGH);
+    }
+    else if (readvoice == "SWS" || readvoice == "RUN WATER")  //
+    {
+      digitalWrite(o, HIGH);
+    }
+    else if (readvoice == "SwS" || readvoice == "STOP WATER")  //
+    {
+      digitalWrite(o, LOW);
+    }
+    else if (readvoice == "SUS")
+    {
+      digitalWrite(r, HIGH);
+    }
+    else if (readvoice == "SuS")
+    {
+      digitalWrite(r, LOW);
+    }
+    else if (readvoice == "SVS")
+    {
+      digitalWrite(b, HIGH);
+    }
+    else if (readvoice == "SvS")
+    {
+      digitalWrite(b, LOW);
+    }
+  }
+}
